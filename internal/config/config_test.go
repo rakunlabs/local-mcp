@@ -120,7 +120,8 @@ func TestConfigFolders(t *testing.T) {
 
 	if folders[0] != filepath.Join("/xdg", "local-mcp") ||
 		folders[1] != filepath.Join("/home/u", ".config", "local-mcp") ||
-		folders[len(folders)-1] != filepath.Join("/etc", "local-mcp") {
+		folders[len(folders)-2] != filepath.Join("/etc", "local-mcp") ||
+		folders[len(folders)-1] != "/etc" {
 		t.Errorf("folders = %v", folders)
 	}
 }

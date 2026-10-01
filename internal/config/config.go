@@ -117,7 +117,7 @@ func DefaultCORS() mcors.Cors {
 }
 
 // ConfigFolders are searched in order, after the working directory, for
-// local-mcp.{toml,yaml,yml,json}. Each location uses a local-mcp subdirectory.
+// local-mcp.{toml,yaml,yml,json}. /etc is also checked after /etc/local-mcp.
 func ConfigFolders() []string {
 	var folders []string
 
@@ -141,6 +141,7 @@ func ConfigFolders() []string {
 	}
 
 	add(filepath.Join("/etc", "local-mcp"))
+	add("/etc")
 
 	return folders
 }

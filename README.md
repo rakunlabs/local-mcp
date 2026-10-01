@@ -87,6 +87,7 @@ See [`local-mcp.example.yaml`](local-mcp.example.yaml). Config is loaded with
 4. the OS user config directory (`~/Library/Application Support/local-mcp/`
    on macOS, `%AppData%\local-mcp\` on Windows)
 5. `/etc/local-mcp/`
+6. `/etc/`
 
 `CONFIG_FILE=/path/to/config.yaml` skips the search. `LOCAL_MCP_*` environment
 variables override the file, e.g. `LOCAL_MCP_READ_ONLY=true`.
