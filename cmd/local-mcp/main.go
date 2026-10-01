@@ -1,4 +1,4 @@
-// Command local is an MCP server that gives an agent OpenCode-style file and
+// Command local-mcp is an MCP server that gives an agent OpenCode-style file and
 // shell tools over a local workspace. It speaks stdio by default and
 // streamable HTTP with --server.
 package main

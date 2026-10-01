@@ -1,5 +1,5 @@
-PROJECT   := local
-MAIN_FILE := cmd/local/main.go
+PROJECT   := local-mcp
+MAIN_FILE := cmd/local-mcp/main.go
 
 BUILD_DATE   := $(shell date -u '+%Y-%m-%d_%H:%M:%S')
 BUILD_COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo -)
@@ -23,7 +23,7 @@ build: ## Build the binary into bin/
 
 .PHONY: install
 install: ## Install the binary into GOBIN
-	CGO_ENABLED=0 go install -trimpath -ldflags="$(LDFLAGS)" ./cmd/local
+	CGO_ENABLED=0 go install -trimpath -ldflags="$(LDFLAGS)" ./cmd/local-mcp
 
 .PHONY: run
 run: ## Run over stdio

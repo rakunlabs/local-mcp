@@ -1,8 +1,8 @@
 // Package config loads the configuration of the local MCP server.
 //
-// Values come from chu: defaults, then the first local.{toml,yaml,yml,json}
+// Values come from chu: defaults, then the first local-mcp.{toml,yaml,yml,json}
 // found in the working directory, ~/.config/local-mcp, the OS user config
-// directory or /etc/local-mcp (or the file named by CONFIG_FILE), then LOCAL_*
+// directory or /etc/local-mcp (or the file named by CONFIG_FILE), then LOCAL_MCP_*
 // environment variables.
 package config
 
@@ -22,7 +22,7 @@ import (
 	"github.com/rakunlabs/logi"
 )
 
-const ServiceName = "local"
+const ServiceName = "local-mcp"
 
 type Config struct {
 	LogLevel string `cfg:"log_level" default:"info"`
@@ -117,8 +117,7 @@ func DefaultCORS() mcors.Cors {
 }
 
 // ConfigFolders are searched in order, after the working directory, for
-// local.{toml,yaml,yml,json}. "local" is too generic a name to drop straight
-// into ~/.config or /etc, so each location uses a local-mcp subdirectory.
+// local-mcp.{toml,yaml,yml,json}. Each location uses a local-mcp subdirectory.
 func ConfigFolders() []string {
 	var folders []string
 
@@ -155,7 +154,7 @@ func Load(ctx context.Context) (*Config, error) {
 
 	if err := chu.Load(ctx, ServiceName, &cfg,
 		chu.WithLoaderOption(loaderfile.New(loaderfile.WithFolders(ConfigFolders()...))),
-		chu.WithLoaderOption(loaderenv.New(loaderenv.WithPrefix("LOCAL_"))),
+		chu.WithLoaderOption(loaderenv.New(loaderenv.WithPrefix("LOCAL_MCP_"))),
 	); err != nil {
 		return nil, fmt.Errorf("load config; %w", err)
 	}

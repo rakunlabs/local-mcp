@@ -1,6 +1,6 @@
-# Copy to local.yaml in the working directory, ~/.config/local-mcp/ or
+# Copy to local-mcp.yaml in the working directory, ~/.config/local-mcp/ or
 # /etc/local-mcp/ (or point CONFIG_FILE at it). Every key can also be set
-# with a LOCAL_ prefixed env var, e.g. LOCAL_READ_ONLY=true, LOCAL_HTTP_TOKEN=...
+# with a LOCAL_MCP_ prefixed env var, e.g. LOCAL_MCP_READ_ONLY=true, LOCAL_MCP_HTTP_TOKEN=...
 log_level: info
 
 # Workspace root; defaults to the current directory. --root overrides it.

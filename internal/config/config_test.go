@@ -9,7 +9,7 @@ import (
 )
 
 func TestLoadCORSMergesOverDefaults(t *testing.T) {
-	file := filepath.Join(t.TempDir(), "local.yaml")
+	file := filepath.Join(t.TempDir(), "local-mcp.yaml")
 	if err := os.WriteFile(file, []byte("http:\n  cors:\n    allow_origins:\n      - https://app.example.com\n    allow_private_network: false\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func writeConfig(t *testing.T, dir, logLevel string) {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(filepath.Join(dir, "local.yaml"), []byte("log_level: "+logLevel+"\n"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "local-mcp.yaml"), []byte("log_level: "+logLevel+"\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -91,6 +91,24 @@ func TestLoadSearchOrder(t *testing.T) {
 
 	if cfg.LogLevel != "error" {
 		t.Errorf("working directory must win: log_level = %q", cfg.LogLevel)
+	}
+}
+
+func TestLoadEnvOverridesFile(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("CONFIG_FILE", "")
+	t.Chdir(t.TempDir())
+	writeConfig(t, ".", "warn")
+	t.Setenv("LOCAL_MCP_LOG_LEVEL", "error")
+	t.Setenv("LOCAL_MCP_READ_ONLY", "true")
+
+	cfg, err := Load(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.LogLevel != "error" || !cfg.ReadOnly {
+		t.Errorf("environment overrides not applied: log_level = %q, read_only = %v", cfg.LogLevel, cfg.ReadOnly)
 	}
 }
 
