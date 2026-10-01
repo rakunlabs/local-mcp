@@ -8,9 +8,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 
+	mcors "github.com/rakunlabs/ada/middleware/cors"
 	"github.com/rakunlabs/chu"
 	"github.com/rakunlabs/chu/loader/loaderenv"
 	"github.com/rakunlabs/logi"
@@ -72,10 +74,51 @@ type HTTP struct {
 	Path    string `cfg:"path" default:"/mcp"`
 	// Token, when set, is required as "Authorization: Bearer <token>".
 	Token string `cfg:"token" log:"false"`
+
+	// CORS is ada's CORS configuration. Keys the config omits keep the
+	// values from DefaultCORS.
+	CORS mcors.Cors `cfg:"cors"`
+}
+
+// DefaultCORS lets browser-based MCP clients reach the server. It only
+// matters to browsers; command-line clients send no Origin header.
+func DefaultCORS() mcors.Cors {
+	return mcors.Cors{
+		AllowOrigins: []string{"*"},
+		// The streamable HTTP transport posts requests, opens the event
+		// stream with GET and ends the session with DELETE.
+		AllowMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodDelete,
+			http.MethodOptions,
+		},
+		AllowHeaders: []string{
+			"content-type",
+			"accept",
+			"authorization",
+			"cache-control",
+			"last-event-id",
+			"mcp-session-id",
+			"mcp-protocol-version",
+		},
+		// A page must read the session id from the initialize response to
+		// make a second call.
+		ExposeHeaders: []string{"Mcp-Session-Id"},
+		// Answers Chrome's Private Network Access preflight, which a page on
+		// a public address must pass to reach a loopback server.
+		AllowPrivateNetwork: true,
+		MaxAge:              600,
+	}
 }
 
 func Load(ctx context.Context) (*Config, error) {
 	var cfg Config
+
+	// Seeded before loading: chu merges over the struct, so keys the config
+	// omits keep their defaults.
+	cfg.HTTP.CORS = DefaultCORS()
+
 	if err := chu.Load(ctx, ServiceName, &cfg,
 		chu.WithLoaderOption(loaderenv.New(loaderenv.WithPrefix("LOCAL_"))),
 	); err != nil {

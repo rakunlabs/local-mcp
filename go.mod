@@ -8,6 +8,7 @@ require (
 	github.com/go-git/go-git/v5 v5.17.0
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/rakunlabs/ada v0.5.3
+	github.com/rakunlabs/ada/middleware/cors v0.5.4-1
 	github.com/rakunlabs/ada/middleware/log v0.5.3
 	github.com/rakunlabs/ada/middleware/recover v0.5.3
 	github.com/rakunlabs/ada/middleware/requestid v0.5.3

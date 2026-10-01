@@ -1,5 +1,8 @@
 # local-mcp
 
+[![License](https://img.shields.io/github/license/rakunlabs/local-mcp?color=blue&style=flat-square)](https://raw.githubusercontent.com/rakunlabs/local-mcp/main/LICENSE)
+[![Coverage](https://img.shields.io/sonar/coverage/rakunlabs_local-mcp?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/overall?id=rakunlabs_local-mcp)
+
 `local` is an MCP server that gives an agent file and shell tools over a local
 workspace. The tools are adapted from [OpenCode's built-in tools](https://opencode.ai/v2/docs/tools/).
 
@@ -56,12 +59,21 @@ Streamable HTTP:
 LOCAL_HTTP_TOKEN=secret local --server   # http://127.0.0.1:8080/mcp
 ```
 
+CORS is on by default so browser-based MCP clients can connect: every origin
+is allowed, the MCP headers are accepted, `Mcp-Session-Id` is exposed and
+Chrome's Private Network Access preflight is answered. Change it under
+`http.cors`; keys you omit keep their defaults.
+
 ## Security
 
 Paths are confined to the workspace root and `allowed_dirs`; symlinks that
 point outside are rejected. `shell`, however, runs with the full authority of
 the host user. Use `read_only: true` or `disabled_tools` to limit what an
 endpoint can do, and set `http.token` when serving over HTTP.
+
+With the default `allow_origins: ["*"]` and no token, any web page opened in a
+browser on the same machine can call the tools, including `shell`. Set
+`http.token`, narrow `http.cors.allow_origins`, or both.
 
 ## Configuration
 

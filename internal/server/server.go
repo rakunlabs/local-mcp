@@ -9,9 +9,11 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"slices"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/rakunlabs/ada"
+	mcors "github.com/rakunlabs/ada/middleware/cors"
 	mlog "github.com/rakunlabs/ada/middleware/log"
 	mrecover "github.com/rakunlabs/ada/middleware/recover"
 	mrequestid "github.com/rakunlabs/ada/middleware/requestid"
@@ -105,6 +107,7 @@ func (s *Server) RunHTTP(ctx context.Context) error {
 	server.Use(
 		mrecover.Middleware(),
 		mserver.Middleware(config.ServiceName+"/"+s.version),
+		mcors.Middleware(mcors.WithConfig(s.cfg.HTTP.CORS)),
 		mrequestid.Middleware(),
 		mlog.Middleware(),
 	)
@@ -117,6 +120,10 @@ func (s *Server) RunHTTP(ctx context.Context) error {
 
 	if s.cfg.HTTP.Token == "" {
 		slog.Warn("http token is not set; anyone who can reach the address can run commands", "address", s.cfg.HTTP.Address)
+
+		if slices.Contains(s.cfg.HTTP.CORS.AllowOrigins, "*") || len(s.cfg.HTTP.CORS.AllowOrigins) == 0 {
+			slog.Warn("cors allows every origin and no token is set; any web page opened in a browser on this machine can call the tools, including shell")
+		}
 	}
 
 	slog.Info("serving MCP over HTTP", "address", s.cfg.HTTP.Address, "path", s.cfg.HTTP.Path)
