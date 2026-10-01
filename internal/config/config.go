@@ -1,7 +1,9 @@
 // Package config loads the configuration of the local MCP server.
 //
-// Values come from chu: defaults, then local.{toml,yaml,yml,json} (or the file
-// named by CONFIG_FILE), then LOCAL_* environment variables.
+// Values come from chu: defaults, then the first local.{toml,yaml,yml,json}
+// found in the working directory, ~/.config/local-mcp, the OS user config
+// directory or /etc/local-mcp (or the file named by CONFIG_FILE), then LOCAL_*
+// environment variables.
 package config
 
 import (
@@ -11,10 +13,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 
 	mcors "github.com/rakunlabs/ada/middleware/cors"
 	"github.com/rakunlabs/chu"
 	"github.com/rakunlabs/chu/loader/loaderenv"
+	"github.com/rakunlabs/chu/loader/loaderfile"
 	"github.com/rakunlabs/logi"
 )
 
@@ -112,6 +116,36 @@ func DefaultCORS() mcors.Cors {
 	}
 }
 
+// ConfigFolders are searched in order, after the working directory, for
+// local.{toml,yaml,yml,json}. "local" is too generic a name to drop straight
+// into ~/.config or /etc, so each location uses a local-mcp subdirectory.
+func ConfigFolders() []string {
+	var folders []string
+
+	add := func(dir string) {
+		if dir != "" && !slices.Contains(folders, dir) {
+			folders = append(folders, dir)
+		}
+	}
+
+	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
+		add(filepath.Join(xdg, "local-mcp"))
+	}
+
+	if home, err := os.UserHomeDir(); err == nil {
+		add(filepath.Join(home, ".config", "local-mcp"))
+	}
+
+	// ~/Library/Application Support on macOS, %AppData% on Windows.
+	if dir, err := os.UserConfigDir(); err == nil {
+		add(filepath.Join(dir, "local-mcp"))
+	}
+
+	add(filepath.Join("/etc", "local-mcp"))
+
+	return folders
+}
+
 func Load(ctx context.Context) (*Config, error) {
 	var cfg Config
 
@@ -120,6 +154,7 @@ func Load(ctx context.Context) (*Config, error) {
 	cfg.HTTP.CORS = DefaultCORS()
 
 	if err := chu.Load(ctx, ServiceName, &cfg,
+		chu.WithLoaderOption(loaderfile.New(loaderfile.WithFolders(ConfigFolders()...))),
 		chu.WithLoaderOption(loaderenv.New(loaderenv.WithPrefix("LOCAL_"))),
 	); err != nil {
 		return nil, fmt.Errorf("load config; %w", err)

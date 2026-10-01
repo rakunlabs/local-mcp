@@ -78,5 +78,15 @@ browser on the same machine can call the tools, including `shell`. Set
 ## Configuration
 
 See [`local.example.yaml`](local.example.yaml). Config is loaded with
-[chu](https://github.com/rakunlabs/chu) from `local.yaml` (or `CONFIG_FILE`)
-and `LOCAL_*` environment variables.
+[chu](https://github.com/rakunlabs/chu). The first
+`local.{toml,yaml,yml,json}` found is used, searched in this order:
+
+1. the working directory
+2. `$XDG_CONFIG_HOME/local-mcp/`, if set
+3. `~/.config/local-mcp/`
+4. the OS user config directory (`~/Library/Application Support/local-mcp/`
+   on macOS, `%AppData%\local-mcp\` on Windows)
+5. `/etc/local-mcp/`
+
+`CONFIG_FILE=/path/to/config.yaml` skips the search. `LOCAL_*` environment
+variables override the file, e.g. `LOCAL_READ_ONLY=true`.
