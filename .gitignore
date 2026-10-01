@@ -1,0 +1,8 @@
+/bin/
+/dist/
+coverage.out
+.env.local
+local.yaml
+local.yml
+local.toml
+local.json

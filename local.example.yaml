@@ -1,0 +1,36 @@
+# Copy to local.yaml (or point CONFIG_FILE at it). Every key can also be set
+# with a LOCAL_ prefixed env var, e.g. LOCAL_READ_ONLY=true, LOCAL_HTTP_TOKEN=...
+log_level: info
+
+# Workspace root; defaults to the current directory. --root overrides it.
+root: ""
+
+# Extra directories, outside root, the tools may read and write.
+allowed_dirs: []
+#  - ~/notes
+
+# Only expose read, glob and grep.
+read_only: false
+
+# Remove individual tools: read, glob, grep, edit, write, patch, shell, shell_job
+disabled_tools: []
+
+search:
+  engine: auto   # auto | rg | go
+  ripgrep: ""    # rg binary; looked up in PATH when empty
+
+shell:
+  path: ""                    # defaults to $SHELL, then /bin/sh
+  default_timeout_ms: 120000  # foreground commands
+  max_timeout_ms: 0           # 0 = no cap
+
+output:
+  dir: ""          # defaults to <tmp>/local-mcp/tool-output
+  max_lines: 2000
+  max_bytes: 51200
+
+# Only used with --server.
+http:
+  address: 127.0.0.1:8080
+  path: /mcp
+  token: ""        # require "Authorization: Bearer <token>"
